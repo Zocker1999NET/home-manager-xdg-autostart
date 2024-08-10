@@ -11,6 +11,16 @@ stored in `${XDG_CONFIG_HOME:~/.config}/autostart`.
 This project is inspired by the discussion in [this issue](https://github.com/nix-community/home-manager/issues/3447#issuecomment-2213029759).
 
 
+# Usage
+
+This repository is prepared for flake as for non-flake configurations.
+To avoid duplicated documentation,
+you can learn
+how to import external modules into your setup
+either from [the NixOS Wiki](https://wiki.nixos.org/wiki/NixOS_modules#Using_external_NixOS_modules)
+or from [this repository’s great README](https://github.com/musnix/musnix#basic-usage).
+
+
 # Development Status
 
 I made this module for my personal use
