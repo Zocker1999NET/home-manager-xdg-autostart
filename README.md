@@ -20,6 +20,35 @@ how to import external modules into your setup
 either from [the NixOS Wiki](https://wiki.nixos.org/wiki/NixOS_modules#Using_external_NixOS_modules)
 or from [this repository’s great README](https://github.com/musnix/musnix#basic-usage).
 
+After importing this module,
+you can use these options in your home configuration:
+
+```nix
+{ config, pkgs, ... }: {
+  xdg.autoStart = {
+    # a list of packages
+    # this is not guranteed to work with most packages (read Design Choices below)
+    packages = with pkgs; [
+      trilium-desktop
+    ];
+    # list of custom desktop files
+  }
+}
+```
+
+## Supported Desktop Environments
+
+I assume most of the popular desktop environments are adhering to the XDG Autostart specification,
+so applications configured by this module
+should autostart on login as expected.
+
+This module was successfully tested "out of the box" in following DEs (installed via):
+
+- KDE Plasma 6
+  - with NixOS config `services.desktopManager.plasma6.enable = true` (on NixOS 24.05)
+
+You can append your DE to the list if this module works for you "out of the box" as well.
+
 
 # Development Status
 
