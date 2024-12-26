@@ -1,13 +1,13 @@
-{ config, pkgs, lib, ... }:
-let
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
   cfg = config.xdg.autoStart;
   inherit (lib) hm types;
-in
-{
-
-
+in {
   options.xdg.autoStart = {
-
     packages = lib.mkOption {
       description = ''
         List of packages which should be autostarted.
@@ -22,7 +22,7 @@ in
       '';
 
       type = types.listOf types.package;
-      default = [ ];
+      default = [];
       example = lib.literalExpression ''
         with pkgs; [
           pkgs.trilium-desktop
@@ -43,8 +43,8 @@ in
         Be warned, this may shadow entries of {option}`xdg.autoStart.packages`.
       '';
 
-      type = types.attrsOf (types.unspecified); # TODO replace unspecified
-      default = { };
+      type = types.attrsOf types.unspecified; # TODO replace unspecified
+      default = {};
       # TODO improve example, take one where it would make sense to use this option
       example = lib.literalExpression ''
         {
@@ -55,36 +55,32 @@ in
         }
       '';
     };
-
   };
 
-
-  config =
-    let
-      # helpers
-      retrieveDesktopItem = (pkg:
-        if pkg ? desktopItem then pkg.desktopItem else
-        if pkg ? desktopItems && pkg.desktopItems != [ ] then builtins.head pkg.desktopItems else
-        abort "package '${pkg.pname}' is missing a desktop file"
-      );
-      emulateDesktopItem = (pkg:
-        lib.nameValuePair pkg.pname (retrieveDesktopItem pkg)
-      );
-      embedDesktopItem = (name: deskItem:
-        lib.nameValuePair "autostart/${name}.desktop" {
-          source = "${deskItem}/share/applications/${deskItem.name}";
-        }
-      );
-      # parse opts
-      desktopItemsPackages = builtins.listToAttrs (map emulateDesktopItem cfg.packages);
-      desktopItems = desktopItemsPackages // cfg.desktopItems;
+  config = let
+    # helpers
+    retrieveDesktopItem = pkg: let
+      desktopItems = lib.toList pkg.desktopItems or [];
     in
-    {
-      assertions = [
-        (hm.assertions.assertPlatform "xdg.autoStart" pkgs lib.platforms.linux)
-      ];
+      if desktopItems == []
+      then abort "package '${pkg.pname or "unknown"}' is missing a desktop file"
+      else builtins.head desktopItems;
 
-      xdg.configFile = lib.attrsets.mapAttrs' embedDesktopItem desktopItems;
-    };
+    emulateDesktopItem = pkg:
+      lib.nameValuePair pkg.pname (retrieveDesktopItem pkg);
+    embedDesktopItem = name: desktopItem:
+      lib.nameValuePair "autostart/${name}.desktop" {
+        source = "${desktopItem}/share/applications/${desktopItem.name}";
+      };
 
+    # parse opts
+    desktopItemsPackages = builtins.listToAttrs (map emulateDesktopItem cfg.packages);
+    desktopItems = desktopItemsPackages // cfg.desktopItems;
+  in {
+    assertions = [
+      (hm.assertions.assertPlatform "xdg.autoStart" pkgs lib.platforms.linux)
+    ];
+
+    xdg.configFile = lib.attrsets.mapAttrs' embedDesktopItem desktopItems;
+  };
 }
