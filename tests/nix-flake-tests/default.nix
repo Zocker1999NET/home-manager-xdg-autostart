@@ -10,7 +10,6 @@ let
   inherit (inputs) nix-flake-tests;
   inherit (lib) types;
   inherit (lib.options) literalExpression mkOption;
-  inherit (lib.trivial) flip;
 
   test = types.submodule {
     freeformType = with types; attrsOf raw;
@@ -50,6 +49,28 @@ let
     }
   );
 
+  # generalized stuff
+
+  translateSet =
+    pkgs: testSet:
+    nix-flake-tests.lib.check ({
+      inherit pkgs;
+      inherit (testSet) tests;
+    });
+  translateSetAttr = pkgs: mapAttrs (_: translateSet pkgs);
+
+  generalizedOptions = {
+    testSets = mkOption {
+      description = ''
+        Define sets of tests as accepted by `lib.debug.runTests`.
+
+        Each set is integrated into its own checks attribute for all systems.
+      '';
+      type = types.attrsOf testSet;
+      default = { };
+    };
+  };
+
 in
 {
 
@@ -57,17 +78,8 @@ in
 
   options = {
 
-    nix-flake-tests = {
-      testSets = mkOption {
-        description = ''
-          Define sets of tests as accepted by `lib.debug.runTests`.
+    nix-flake-tests = generalizedOptions;
 
-          Each set is integrated into its own checks attribute.
-        '';
-        type = types.attrsOf testSet;
-        default = { };
-      };
-    };
 
   };
 
@@ -76,13 +88,7 @@ in
     perSystem =
       { pkgs, ... }:
       {
-        checks = flip mapAttrs config.nix-flake-tests.testSets (
-          _: cfg:
-          nix-flake-tests.lib.check ({
-            inherit pkgs;
-            inherit (cfg) tests;
-          })
-        );
+        checks = translateSetAttr pkgs config.nix-flake-tests.testSets;
       };
 
   };
