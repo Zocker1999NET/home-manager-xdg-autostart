@@ -55,16 +55,20 @@ in
 
   _class = "flake";
 
-  options.nix-flake-tests = {
-    testSets = mkOption {
-      description = ''
-        Define sets of tests as accepted by `lib.debug.runTests`.
+  options = {
 
-        Each set is integrated into its own checks attribute.
-      '';
-      type = types.attrsOf testSet;
-      default = { };
+    nix-flake-tests = {
+      testSets = mkOption {
+        description = ''
+          Define sets of tests as accepted by `lib.debug.runTests`.
+
+          Each set is integrated into its own checks attribute.
+        '';
+        type = types.attrsOf testSet;
+        default = { };
+      };
     };
+
   };
 
   config = {
