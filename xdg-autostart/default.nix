@@ -7,7 +7,7 @@
 let
   cfg = config.xdg.autostart;
   inherit (builtins) concatLists filter head;
-  inherit (lib) hm types;
+  inherit (lib) types;
   inherit (lib.attrsets) mapAttrs' nameValuePair;
   inherit (lib.lists) singleton toList;
   inherit (lib.modules) literalExpression;
@@ -100,10 +100,6 @@ in
       desktopItems = desktopItemsPackages // cfg.desktopItems;
     in
     {
-      assertions = [
-        (hm.assertions.assertPlatform "xdg.autostart" pkgs lib.platforms.linux)
-      ];
-
       xdg.configFile = mapAttrs' embedDesktopItem desktopItems;
     };
 
