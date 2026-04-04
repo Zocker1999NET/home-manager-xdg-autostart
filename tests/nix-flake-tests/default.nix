@@ -1,12 +1,14 @@
 # integrates nix-flake-tests with flake-parts
 {
   config,
+  flake-parts-lib,
   inputs,
   lib,
   ...
 }:
 let
   inherit (builtins) mapAttrs;
+  inherit (flake-parts-lib) mkPerSystemOption;
   inherit (inputs) nix-flake-tests;
   inherit (lib) types;
   inherit (lib.options) literalExpression mkOption;
@@ -80,6 +82,16 @@ in
 
     nix-flake-tests = generalizedOptions;
 
+    perSystem = mkPerSystemOption (
+      { config, pkgs, ... }:
+      {
+        options.nix-flake-tests = generalizedOptions;
+
+        config = {
+          checks = translateSetAttr pkgs config.nix-flake-tests.testSets;
+        };
+      }
+    );
 
   };
 
