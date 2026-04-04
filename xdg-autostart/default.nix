@@ -70,10 +70,10 @@ in
       # helpers
       retrieveDesktopItem = (
         pkg:
-        if pkg ? desktopItem then
-          pkg.desktopItem
-        else if pkg ? desktopItems && pkg.desktopItems != [ ] then
+        if pkg ? desktopItems && pkg.desktopItems != [ ] then
           builtins.head pkg.desktopItems
+        else if pkg ? desktopItem then
+          pkg.desktopItem
         else
           abort "package '${pkg.pname}' is missing a desktop file"
       );
