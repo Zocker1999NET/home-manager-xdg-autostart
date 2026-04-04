@@ -10,6 +10,10 @@
 
     # for testing
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nix-flake-tests.url = "github:antifuchs/nix-flake-tests/main";
 
   };
@@ -22,6 +26,7 @@
 
       imports = [
         inputs.flake-parts.flakeModules.flakeModules
+        inputs.home-manager.flakeModules.default
         ./tests
       ];
 
