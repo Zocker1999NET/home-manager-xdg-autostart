@@ -6,10 +6,13 @@
 }:
 let
   cfg = config.xdg.autoStart;
+  inherit (builtins) concatLists filter head;
   inherit (lib) hm types;
   inherit (lib.attrsets) mapAttrs' nameValuePair;
+  inherit (lib.lists) singleton toList;
   inherit (lib.modules) literalExpression;
   inherit (lib.options) mkOption;
+  inherit (lib.trivial) pipe;
 in
 {
 
@@ -70,12 +73,20 @@ in
       # helpers
       retrieveDesktopItem = (
         pkg:
-        if pkg ? desktopItems && pkg.desktopItems != [ ] then
-          builtins.head pkg.desktopItems
-        else if pkg ? desktopItem then
-          pkg.desktopItem
-        else
-          abort "package '${pkg.pname}' is missing a desktop file"
+        let
+          items = [
+            (pkg.desktopItems or null)
+            (pkg.desktopItem or null)
+            # abort must be packed inside list so it may only be triggered after concatLists
+            (singleton (abort "package '${pkg.pname}' is missing a desktop file"))
+          ];
+        in
+        pipe items [
+          (filter (x: x != null))
+          (map toList)
+          concatLists
+          head
+        ]
       );
       emulateDesktopItem = (pkg: nameValuePair pkg.pname (retrieveDesktopItem pkg));
       embedDesktopItem = (
