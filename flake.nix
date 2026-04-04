@@ -1,5 +1,5 @@
 {
-  description = "xdg.autoStart Home-Manager module";
+  description = "xdg.autostart Home-Manager module";
 
   outputs =
     { self }:

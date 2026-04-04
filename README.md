@@ -25,7 +25,7 @@ you can use these options in your home configuration:
 
 ```nix
 { config, pkgs, ... }: {
-  xdg.autoStart = {
+  xdg.autostart = {
     # a list of packages
     # this is not guranteed to work with most packages (read Design Choices below)
     packages = with pkgs; [

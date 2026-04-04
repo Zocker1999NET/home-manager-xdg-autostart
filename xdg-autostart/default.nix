@@ -5,7 +5,7 @@
   ...
 }:
 let
-  cfg = config.xdg.autoStart;
+  cfg = config.xdg.autostart;
   inherit (builtins) concatLists filter head;
   inherit (lib) hm types;
   inherit (lib.attrsets) mapAttrs' nameValuePair;
@@ -16,7 +16,7 @@ let
 in
 {
 
-  options.xdg.autoStart = {
+  options.xdg.autostart = {
 
     packages = mkOption {
       description = ''
@@ -28,7 +28,7 @@ in
 
         Users who want to specifically select a certain desktop file
         or who want to write their own
-        can make use of the {option}`xdg.autoStart.desktopItems` option.
+        can make use of the {option}`xdg.autostart.desktopItems` option.
       '';
 
       type = types.listOf types.package;
@@ -44,13 +44,13 @@ in
       description = ''
         List of desktop files which should be autostarted.
 
-        Users should prefer to use {option}`xdg.autoStart.packages`
+        Users should prefer to use {option}`xdg.autostart.packages`
         and only use this option in case
         they want to specifically
         select a package’s desktop item
         or want to create their own desktop item.
 
-        Be warned, this may shadow entries of {option}`xdg.autoStart.packages`.
+        Be warned, this may shadow entries of {option}`xdg.autostart.packages`.
       '';
 
       type = types.attrsOf (types.unspecified); # TODO replace unspecified
@@ -101,7 +101,7 @@ in
     in
     {
       assertions = [
-        (hm.assertions.assertPlatform "xdg.autoStart" pkgs lib.platforms.linux)
+        (hm.assertions.assertPlatform "xdg.autostart" pkgs lib.platforms.linux)
       ];
 
       xdg.configFile = mapAttrs' embedDesktopItem desktopItems;
