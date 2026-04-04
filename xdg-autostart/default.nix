@@ -1,6 +1,5 @@
 {
   config,
-  pkgs,
   lib,
   ...
 }:
@@ -8,7 +7,6 @@ let
   cfg = config.xdg.autostart;
   inherit (builtins) concatLists filter head;
   inherit (lib) types;
-  inherit (lib.attrsets) mapAttrs' nameValuePair;
   inherit (lib.lists) singleton toList;
   inherit (lib.modules) literalExpression;
   inherit (lib.options) mkOption;
@@ -28,7 +26,7 @@ in
 
         Users who want to specifically select a certain desktop file
         or who want to write their own
-        can make use of the {option}`xdg.autostart.desktopItems` option.
+        can make use of the {option}`xdg.autostart.entries` option.
       '';
 
       type = types.listOf types.package;
@@ -40,38 +38,11 @@ in
       '';
     };
 
-    desktopItems = mkOption {
-      description = ''
-        List of desktop files which should be autostarted.
-
-        Users should prefer to use {option}`xdg.autostart.packages`
-        and only use this option in case
-        they want to specifically
-        select a package’s desktop item
-        or want to create their own desktop item.
-
-        Be warned, this may shadow entries of {option}`xdg.autostart.packages`.
-      '';
-
-      type = types.attrsOf (types.unspecified); # TODO replace unspecified
-      default = { };
-      # TODO improve example, take one where it would make sense to use this option
-      example = literalExpression ''
-        {
-          discord = pkgs.discord.desktopItem
-          firefox-custom = makeDesktopItem {
-            exec = "firefox -P custom";
-          };
-        }
-      '';
-    };
-
   };
 
   config =
     let
-      # helpers
-      retrieveDesktopItem = (
+      retrieveDesktopItem =
         pkg:
         let
           items = [
@@ -86,21 +57,11 @@ in
           (map toList)
           concatLists
           head
-        ]
-      );
-      emulateDesktopItem = (pkg: nameValuePair pkg.pname (retrieveDesktopItem pkg));
-      embedDesktopItem = (
-        name: deskItem:
-        nameValuePair "autostart/${name}.desktop" {
-          source = "${deskItem}/share/applications/${deskItem.name}";
-        }
-      );
-      # parse opts
-      desktopItemsPackages = builtins.listToAttrs (map emulateDesktopItem cfg.packages);
-      desktopItems = desktopItemsPackages // cfg.desktopItems;
+          (deskItem: "${deskItem}/share/applications/${deskItem.name}")
+        ];
     in
     {
-      xdg.configFile = mapAttrs' embedDesktopItem desktopItems;
+      xdg.autostart.entries = map retrieveDesktopItem cfg.packages;
     };
 
 }
