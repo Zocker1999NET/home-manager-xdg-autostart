@@ -7,12 +7,15 @@
 let
   cfg = config.xdg.autoStart;
   inherit (lib) hm types;
+  inherit (lib.attrsets) mapAttrs' nameValuePair;
+  inherit (lib.modules) literalExpression;
+  inherit (lib.options) mkOption;
 in
 {
 
   options.xdg.autoStart = {
 
-    packages = lib.mkOption {
+    packages = mkOption {
       description = ''
         List of packages which should be autostarted.
 
@@ -27,14 +30,14 @@ in
 
       type = types.listOf types.package;
       default = [ ];
-      example = lib.literalExpression ''
+      example = literalExpression ''
         with pkgs; [
           pkgs.trilium-desktop
         ]
       '';
     };
 
-    desktopItems = lib.mkOption {
+    desktopItems = mkOption {
       description = ''
         List of desktop files which should be autostarted.
 
@@ -50,7 +53,7 @@ in
       type = types.attrsOf (types.unspecified); # TODO replace unspecified
       default = { };
       # TODO improve example, take one where it would make sense to use this option
-      example = lib.literalExpression ''
+      example = literalExpression ''
         {
           discord = pkgs.discord.desktopItem
           firefox-custom = makeDesktopItem {
@@ -74,10 +77,10 @@ in
         else
           abort "package '${pkg.pname}' is missing a desktop file"
       );
-      emulateDesktopItem = (pkg: lib.nameValuePair pkg.pname (retrieveDesktopItem pkg));
+      emulateDesktopItem = (pkg: nameValuePair pkg.pname (retrieveDesktopItem pkg));
       embedDesktopItem = (
         name: deskItem:
-        lib.nameValuePair "autostart/${name}.desktop" {
+        nameValuePair "autostart/${name}.desktop" {
           source = "${deskItem}/share/applications/${deskItem.name}";
         }
       );
@@ -90,7 +93,7 @@ in
         (hm.assertions.assertPlatform "xdg.autoStart" pkgs lib.platforms.linux)
       ];
 
-      xdg.configFile = lib.attrsets.mapAttrs' embedDesktopItem desktopItems;
+      xdg.configFile = mapAttrs' embedDesktopItem desktopItems;
     };
 
 }
