@@ -1,10 +1,14 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
   cfg = config.xdg.autoStart;
   inherit (lib) hm types;
 in
 {
-
 
   options.xdg.autoStart = {
 
@@ -58,19 +62,21 @@ in
 
   };
 
-
   config =
     let
       # helpers
-      retrieveDesktopItem = (pkg:
-        if pkg ? desktopItem then pkg.desktopItem else
-        if pkg ? desktopItems && pkg.desktopItems != [ ] then builtins.head pkg.desktopItems else
-        abort "package '${pkg.pname}' is missing a desktop file"
+      retrieveDesktopItem = (
+        pkg:
+        if pkg ? desktopItem then
+          pkg.desktopItem
+        else if pkg ? desktopItems && pkg.desktopItems != [ ] then
+          builtins.head pkg.desktopItems
+        else
+          abort "package '${pkg.pname}' is missing a desktop file"
       );
-      emulateDesktopItem = (pkg:
-        lib.nameValuePair pkg.pname (retrieveDesktopItem pkg)
-      );
-      embedDesktopItem = (name: deskItem:
+      emulateDesktopItem = (pkg: lib.nameValuePair pkg.pname (retrieveDesktopItem pkg));
+      embedDesktopItem = (
+        name: deskItem:
         lib.nameValuePair "autostart/${name}.desktop" {
           source = "${deskItem}/share/applications/${deskItem.name}";
         }
