@@ -1,2 +1,5 @@
 # import modules for home-manager users
-{ imports = [ ./xdg-autostart ]; }
+{
+  _class = "homeManager";
+  imports = [ ./xdg-autostart ];
+}

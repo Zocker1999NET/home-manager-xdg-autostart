@@ -14,6 +14,8 @@ let
 in
 {
 
+  _class = "homeManager";
+
   options.xdg.autostart = {
 
     packages = mkOption {
