@@ -6,7 +6,7 @@
     {
       homeManagerModules = rec {
         default = xdg-autostart;
-        xdg-autostart = import ./.;
+        xdg-autostart.imports = [ ./. ];
       };
     };
 }
