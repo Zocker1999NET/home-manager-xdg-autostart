@@ -7,11 +7,19 @@
   ...
 }:
 let
-  inherit (builtins) mapAttrs;
+  inherit (builtins)
+    all
+    attrNames
+    mapAttrs
+    substring
+    ;
   inherit (flake-parts-lib) mkPerSystemOption;
   inherit (inputs) nix-flake-tests;
   inherit (lib) types;
+  inherit (lib.asserts) assertMsg;
   inherit (lib.options) literalExpression mkOption;
+
+  validTestName = name: substring 0 4 name == "test";
 
   test = types.submodule {
     freeformType = with types; attrsOf raw;
@@ -55,6 +63,9 @@ let
 
   translateSet =
     pkgs: testSet:
+    assert assertMsg (all validTestName (
+      attrNames testSet.tests
+    )) ''only tests with prefix "test" are actually evaluated by lib.debug.runTests'';
     nix-flake-tests.lib.check ({
       inherit pkgs;
       inherit (testSet) tests;
