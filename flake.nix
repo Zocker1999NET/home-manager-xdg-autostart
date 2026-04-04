@@ -5,7 +5,12 @@
 
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
     };
+
+    # for testing
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nix-flake-tests.url = "github:antifuchs/nix-flake-tests/main";
 
   };
 
@@ -15,7 +20,15 @@
 
       _class = "flake";
 
+      imports = [
+        inputs.flake-parts.flakeModules.flakeModules
+        ./tests
+      ];
+
       flake = {
+
+        # export by-product
+        flake.flakeModules.nix-flake-tests.imports = [ ./tests/nix-flake-tests.nix ];
 
         homeManagerModules = rec {
           default = xdg-autostart;
