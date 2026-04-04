@@ -4,7 +4,8 @@
   outputs =
     { self }:
     {
-      homeManagerModules = {
+      homeManagerModules = rec {
+        default = xdg-autostart;
         xdg-autostart = import ./.;
       };
     };
