@@ -28,7 +28,10 @@
       flake = {
 
         # export by-product
-        flakeModules.nix-flake-tests.imports = [ ./tests/nix-flake-tests.nix ];
+        flakeModules = {
+          default = { }; # nix flake check wants this
+          nix-flake-tests.imports = [ ./tests/nix-flake-tests.nix ];
+        };
 
         homeManagerModules = rec {
           default = xdg-autostart;
